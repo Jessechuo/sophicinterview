@@ -31,7 +31,7 @@ file uploads, i18n, frontend unit tests.
 
 | Layer | Choice |
 |---|---|
-| Frontend | React 19 + TypeScript, Vite, React Router, TanStack Query, Axios, Ant Design (latest major), Recharts |
+| Frontend | React 19 + TypeScript, Vite, React Router, TanStack Query, Axios, Tailwind CSS 3 (the UI designs' own token config), Material Symbols icons, Inter font; charts are hand-built SVG/CSS exactly as designed |
 | Backend | ASP.NET Core Web API on .NET 10 (LTS), C# |
 | Data access | EF Core + Npgsql, code-first migrations |
 | Database | PostgreSQL 18 |
@@ -43,8 +43,9 @@ file uploads, i18n, frontend unit tests.
 ## 4. Architecture
 
 ```
-React SPA (Vite dev server :5173)
-   │  /api/* proxied by Vite in dev (no CORS needed locally)
+React SPA (Vite dev server :5173 locally; Vercel in production)
+   │  /api/* proxied by Vite in dev; in production either a Vercel rewrite to the API host
+   │  or VITE_API_BASE_URL + CORS (Cors:AllowedOrigins) on the API
    ▼
 ASP.NET Core Web API (:5080)
    ExceptionHandler → Authentication (JWT) → Authorization (roles) → Controller
@@ -248,11 +249,27 @@ purchaseDate, assignee).
 | `/tickets/:id` | owner/Admin | details; Admin: status + resolution note |
 | `/forbidden`, `*` | — | 403 and 404 pages |
 
-- `AuthContext` holds the token and user; token kept in `localStorage` (accepted trade-off
-  for an internal tool; noted in README).
-- `ProtectedRoute` redirects to `/login` when there is no valid token; `RoleGate` sends
+- **Visual source of truth:** the Google Stitch screens (login, dashboard, assets, asset details
+  + assign modal, new asset, users + edit modal, activity log, tickets, new ticket). Each screen's
+  markup is ported to JSX with the same Tailwind 3 classes and the same `tailwind.config` tokens;
+  Material Symbols provide the icons. Ticket details, 403 and 404 have no mock-up and reuse the
+  same components and tokens.
+- Mock-up content with no backing data is swapped for real figures or removed — never shown as
+  fake data (e.g. SLA compliance → resolution rate, 2FA posture → departments, attachments
+  dropzone and "forgot password" email flow removed). Hot-linked stock photos become initials avatars.
+- `AuthContext` holds the token and user: `localStorage` when "Remember me" is ticked, otherwise
+  `sessionStorage` (accepted trade-off for an internal tool; noted in README).
+- `RequireAuth` redirects to `/login` when there is no valid token; `RequireAdmin` sends
   non-admins to `/forbidden` on admin routes.
-- Sidebar menu items are filtered by role.
+- Sidebar menu items are filtered by role (Users and Activity Log are admin-only).
+- The new-asset form keeps an auto-saved draft in `localStorage` ("Form Draft Auto-Saved").
+
+### Deployment (later)
+
+Vercel hosts the frontend (`frontend/` as the project root, `vercel.json` SPA fallback). Vercel
+cannot run .NET, so the API and PostgreSQL run elsewhere (e.g. Render/Railway + Neon). The SPA
+reads `VITE_API_BASE_URL` (empty = same origin `/api`), and the API allows the SPA's origin via
+`Cors:AllowedOrigins`.
 
 ## 10. Key Flow: Login → Asset Assignment
 
