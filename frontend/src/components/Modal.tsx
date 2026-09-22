@@ -33,7 +33,7 @@ export function Modal({ title, onClose, children, footer, icon, widthClass = 'w-
         <div className="flex items-center justify-between px-space-lg py-space-md bg-surface-container-lowest">
           <div className="flex items-center gap-space-sm">
             {icon && (
-              <span className="w-8 h-8 rounded-full bg-secondary-container/60 text-primary flex items-center justify-center">
+              <span className="w-7 h-7 rounded-full bg-secondary-container text-primary flex items-center justify-center">
                 <Icon name={icon} className="text-[18px]" />
               </span>
             )}

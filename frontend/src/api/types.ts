@@ -164,6 +164,7 @@ export interface UserUpdateInput {
 export interface UserQuery {
   search?: string
   role?: Role
+  hasAssets?: boolean
   page?: number
   pageSize?: number
 }

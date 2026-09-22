@@ -1,7 +1,7 @@
 import { Icon } from './Icon'
 
-// Three footers appear in the designs: "soft" (assets), "plain" (tickets), "outlined" (activity log, users).
-type Variant = 'soft' | 'plain' | 'outlined'
+// Four footers appear in the designs: "soft" (assets), "plain" (tickets), "outlined" (activity log), "compact" (users).
+type Variant = 'soft' | 'plain' | 'outlined' | 'compact'
 
 interface PaginationProps {
   page: number
@@ -10,7 +10,11 @@ interface PaginationProps {
   noun: string
   onChange: (page: number) => void
   variant?: Variant
+  // When given, a "10 / page" selector is shown after the page buttons.
+  onPageSizeChange?: (size: number) => void
 }
+
+const PAGE_SIZES = [10, 20, 50]
 
 const STYLES: Record<Variant, {
   bar: string; text: string; strong: string; nav: string; icon: string
@@ -49,6 +53,17 @@ const STYLES: Record<Variant, {
     active: 'w-8 h-8 flex items-center justify-center rounded bg-primary text-on-primary font-body-medium text-body-medium font-semibold shadow-xs',
     idle: 'w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface font-body-default text-body-default hover:border-primary hover:text-primary transition-colors',
   },
+  compact: {
+    bar: 'px-space-md py-space-sm bg-[#fafafa] flex flex-col sm:flex-row items-center justify-between gap-space-sm',
+    text: 'font-caption text-caption text-on-surface-variant',
+    strong: 'font-medium text-on-surface',
+    nav: 'flex items-center gap-1',
+    icon: 'text-[16px]',
+    step: 'w-7 h-7 flex items-center justify-center rounded bg-surface-container-lowest text-on-surface-variant hover:text-primary shadow-xs transition-colors',
+    stepDisabled: 'w-7 h-7 flex items-center justify-center rounded bg-surface-container-lowest text-on-surface-variant/40 cursor-not-allowed shadow-xs',
+    active: 'w-7 h-7 flex items-center justify-center rounded bg-primary text-on-primary font-caption text-caption font-semibold shadow-xs',
+    idle: 'w-7 h-7 flex items-center justify-center rounded bg-surface-container-lowest text-on-surface font-caption text-caption hover:text-primary shadow-xs transition-colors',
+  },
 }
 
 // 1 2 3 … 13 style window: first, last, and the neighbours of the current page.
@@ -66,7 +81,7 @@ function pageWindow(page: number, pages: number): (number | 'gap')[] {
   return result
 }
 
-export function Pagination({ page, pageSize, total, noun, onChange, variant = 'soft' }: PaginationProps) {
+export function Pagination({ page, pageSize, total, noun, onChange, variant = 'soft', onPageSizeChange }: PaginationProps) {
   const s = STYLES[variant]
   const pages = Math.max(1, Math.ceil(total / pageSize))
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1
@@ -112,6 +127,21 @@ export function Pagination({ page, pageSize, total, noun, onChange, variant = 's
         >
           <Icon name="chevron_right" className={s.icon} />
         </button>
+        {onPageSizeChange && (
+          <div className="relative ml-space-sm">
+            <select
+              aria-label="Rows per page"
+              className="appearance-none h-7 pl-2 pr-6 bg-surface-container-lowest text-on-surface font-caption text-caption rounded shadow-xs focus:outline-none cursor-pointer"
+              onChange={(e) => onPageSizeChange(Number(e.target.value))}
+              value={pageSize}
+            >
+              {PAGE_SIZES.map((size) => (
+                <option key={size} value={size}>{size} / page</option>
+              ))}
+            </select>
+            <Icon name="expand_more" className="absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-[14px]" />
+          </div>
+        )}
       </div>
     </div>
   )

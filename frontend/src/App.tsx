@@ -9,6 +9,7 @@ import { AssetListPage } from './pages/assets/AssetListPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ForbiddenPage, NotFoundPage } from './pages/ErrorPages'
 import { LoginPage } from './pages/LoginPage'
+import { UsersPage } from './pages/users/UsersPage'
 
 // Temporary stand-in until each screen is ported.
 function Pending() {
@@ -33,7 +34,7 @@ export default function App() {
             <Route element={<AssetFormPage />} path="assets/new" />
             <Route element={<AssetFormPage key="edit" />} path="assets/:id/edit" />
             <Route element={<Pending />} path="activity" />
-            <Route element={<Pending />} path="users" />
+            <Route element={<UsersPage />} path="users" />
           </Route>
           <Route element={<ForbiddenPage />} path="forbidden" />
           <Route element={<NotFoundPage />} path="*" />
