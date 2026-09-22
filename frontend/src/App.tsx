@@ -4,6 +4,7 @@ import { useAuth } from './auth/authContext'
 import { AppShell } from './components/AppShell'
 import { LoadingState } from './components/States'
 import { ForbiddenPage, NotFoundPage } from './pages/ErrorPages'
+import { LoginPage } from './pages/LoginPage'
 
 // Temporary stand-in until each screen is ported.
 function Pending() {
@@ -15,7 +16,7 @@ export default function App() {
 
   return (
     <Routes>
-      <Route element={user ? <Navigate replace to="/" /> : <Pending />} path="/login" />
+      <Route element={user ? <Navigate replace to="/" /> : <LoginPage />} path="/login" />
       <Route element={<RequireAuth />}>
         <Route element={<AppShell />}>
           <Route element={<Pending />} index />

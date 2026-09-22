@@ -30,3 +30,6 @@ Thumbs.db
 
 # Local working notes and implementation plans — not published
 docs/superpowers/
+
+# Local browser-automation output (screenshots, snapshots)
+.playwright-mcp/
