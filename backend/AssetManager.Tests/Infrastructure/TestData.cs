@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -5,6 +6,8 @@ using System.Text.Json.Serialization;
 using AssetManager.Api.Data;
 using AssetManager.Api.Dtos;
 using AssetManager.Api.Entities;
+using AssetManager.Api.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AssetManager.Tests.Infrastructure;
@@ -59,4 +62,40 @@ public static class TestData
 
     public static async Task<T> ReadAsync<T>(this HttpResponseMessage response) =>
         (await response.Content.ReadFromJsonAsync<T>(Json))!;
+
+    public static AssetCreateRequest NewAsset(string? tag = null) => new()
+    {
+        AssetTag = tag ?? $"T-{Guid.NewGuid():N}"[..12].ToUpperInvariant(),
+        Name = "Test Laptop",
+        Category = AssetCategory.Laptop,
+        Status = AssetStatus.InService
+    };
+
+    public static async Task<AssetDto> CreateAssetAsync(this HttpClient admin, AssetCreateRequest? request = null)
+    {
+        var response = await admin.PostAsJsonAsync("/api/assets", request ?? NewAsset(), Json);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        return await response.ReadAsync<AssetDto>();
+    }
+
+    public static AssetUpdateRequest ToUpdate(this AssetDto a) => new()
+    {
+        AssetTag = a.AssetTag, Name = a.Name, Category = a.Category, Brand = a.Brand, Model = a.Model,
+        SerialNumber = a.SerialNumber, PurchaseDate = a.PurchaseDate, PurchaseCost = a.PurchaseCost,
+        Location = a.Location, Status = a.Status, Notes = a.Notes, Version = a.Version
+    };
+
+    public static async Task<PagedResult<AssetDto>> ListAssetsAsync(this HttpClient client, string query)
+    {
+        var response = await client.GetAsync($"/api/assets?{query}");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return await response.ReadAsync<PagedResult<AssetDto>>();
+    }
+
+    public static async Task<List<ActivityLog>> LogsAsync(this ApiFactory factory, int assetId)
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        return await db.ActivityLogs.AsNoTracking().Where(l => l.AssetId == assetId).OrderBy(l => l.Id).ToListAsync();
+    }
 }

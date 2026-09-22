@@ -21,6 +21,7 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
 builder.Services.AddJwtAuthentication();
 
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AssetService>();
 
 var app = builder.Build();
 
