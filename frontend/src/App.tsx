@@ -3,6 +3,7 @@ import { RequireAdmin, RequireAuth } from './auth/guards'
 import { useAuth } from './auth/authContext'
 import { AppShell } from './components/AppShell'
 import { LoadingState } from './components/States'
+import { AssetFormPage } from './pages/assets/AssetFormPage'
 import { AssetListPage } from './pages/assets/AssetListPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ForbiddenPage, NotFoundPage } from './pages/ErrorPages'
@@ -28,8 +29,8 @@ export default function App() {
           <Route element={<Pending />} path="tickets/new" />
           <Route element={<Pending />} path="tickets/:id" />
           <Route element={<RequireAdmin />}>
-            <Route element={<Pending />} path="assets/new" />
-            <Route element={<Pending />} path="assets/:id/edit" />
+            <Route element={<AssetFormPage />} path="assets/new" />
+            <Route element={<AssetFormPage key="edit" />} path="assets/:id/edit" />
             <Route element={<Pending />} path="activity" />
             <Route element={<Pending />} path="users" />
           </Route>
