@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AssetManager.Api/AssetManager.Api.csproj" />
+  <Project Path="AssetManager.Tests/AssetManager.Tests.csproj" />
+</Solution>
