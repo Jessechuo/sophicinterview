@@ -38,4 +38,17 @@ public static class Exports
 
     public static byte[] ActivityLogs(IEnumerable<ActivityLogDto> rows) =>
         ExcelExporter.Export("Activity Log", ActivityColumns, rows);
+
+    private static readonly ExcelColumn<UserDto>[] UserColumns =
+    [
+        new("Username", u => u.Username),
+        new("Full Name", u => u.FullName),
+        new("Email", u => u.Email),
+        new("Department", u => u.Department),
+        new("Role", u => u.Role.ToString()),
+        new("Assigned Assets", u => u.AssignedAssetCount),
+        new("Created At (UTC)", u => u.CreatedAt)
+    ];
+
+    public static byte[] Users(IEnumerable<UserDto> rows) => ExcelExporter.Export("Users", UserColumns, rows);
 }
