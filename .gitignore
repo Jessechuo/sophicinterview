@@ -1,6 +1,9 @@
 # Confidential assessment brief — never commit
 *ASSESSMENT*.pdf
 
+# Personal Stitch design exports — kept locally only
+design/
+
 # .NET
 bin/
 obj/

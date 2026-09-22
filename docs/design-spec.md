@@ -347,8 +347,8 @@ Frontend is verified manually and through the screenshots/demo deliverable.
 
 ## 16. Additions From the UI Designs
 
-The Stitch designs in `design/` (tokens in `design/it_asset_manager_enterprise_system/DESIGN.md`,
-which match Ant Design defaults) add these small requirements on top of the sections above:
+The Google Stitch UI designs (kept outside the repository; their colour, spacing and radius tokens
+match Ant Design defaults) add these small requirements on top of the sections above:
 
 - `User.Department` (optional, ≤ 100) — shown under names and on the assignment card; editable in user forms; exported.
 - `Asset.AssignedAt` (UTC, nullable) — "Assigned since" on asset details; set on assign/reassign, cleared on unassign.
