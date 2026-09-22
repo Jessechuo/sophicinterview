@@ -22,6 +22,7 @@ builder.Services.AddJwtAuthentication();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AssetService>();
+builder.Services.AddScoped<ActivityLogService>();
 
 var app = builder.Build();
 

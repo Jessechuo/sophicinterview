@@ -24,4 +24,18 @@ public static class Exports
     ];
 
     public static byte[] Assets(IEnumerable<AssetDto> rows) => ExcelExporter.Export("Assets", AssetColumns, rows);
+
+    private static readonly ExcelColumn<ActivityLogDto>[] ActivityColumns =
+    [
+        new("Timestamp (UTC)", l => l.Timestamp),
+        new("Asset Tag", l => l.Asset.AssetTag),
+        new("Asset Name", l => l.Asset.Name),
+        new("Action", l => l.Action.Humanize()),
+        new("Performed By", l => l.PerformedBy.FullName),
+        new("Target User", l => l.TargetUser?.FullName),
+        new("Details", l => l.Details)
+    ];
+
+    public static byte[] ActivityLogs(IEnumerable<ActivityLogDto> rows) =>
+        ExcelExporter.Export("Activity Log", ActivityColumns, rows);
 }
