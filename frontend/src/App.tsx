@@ -3,6 +3,7 @@ import { RequireAdmin, RequireAuth } from './auth/guards'
 import { useAuth } from './auth/authContext'
 import { AppShell } from './components/AppShell'
 import { LoadingState } from './components/States'
+import { AssetDetailsPage } from './pages/assets/AssetDetailsPage'
 import { AssetFormPage } from './pages/assets/AssetFormPage'
 import { AssetListPage } from './pages/assets/AssetListPage'
 import { DashboardPage } from './pages/DashboardPage'
@@ -24,7 +25,7 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route element={<DashboardPage />} index />
           <Route element={<AssetListPage />} path="assets" />
-          <Route element={<Pending />} path="assets/:id" />
+          <Route element={<AssetDetailsPage />} path="assets/:id" />
           <Route element={<Pending />} path="tickets" />
           <Route element={<Pending />} path="tickets/new" />
           <Route element={<Pending />} path="tickets/:id" />
