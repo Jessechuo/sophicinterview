@@ -31,14 +31,14 @@ file uploads, i18n, frontend unit tests.
 
 | Layer | Choice |
 |---|---|
-| Frontend | React 19 + TypeScript, Vite, React Router, TanStack Query, Axios, Ant Design 5, Recharts |
+| Frontend | React 19 + TypeScript, Vite, React Router, TanStack Query, Axios, Ant Design (latest major), Recharts |
 | Backend | ASP.NET Core Web API on .NET 10 (LTS), C# |
 | Data access | EF Core + Npgsql, code-first migrations |
 | Database | PostgreSQL 18 |
 | Auth | JWT Bearer (HS256), BCrypt.Net password hashing |
 | Excel | ClosedXML |
 | API docs | OpenAPI + Swagger UI (Development only) |
-| Tests | xUnit, `WebApplicationFactory`, Testcontainers.PostgreSql |
+| Tests | xUnit, `WebApplicationFactory`, disposable PostgreSQL database per test class |
 
 ## 4. Architecture
 
@@ -200,8 +200,9 @@ All responses are JSON unless noted. Lists return
 | DELETE | `/api/assets/{id}` | Admin | soft delete |
 | POST | `/api/assets/{id}/assign` | Admin | `{ userId }` |
 | POST | `/api/assets/{id}/unassign` | Admin | |
-| GET | `/api/assets/{id}/activity` | Admin | history for one asset |
 | GET | `/api/assets/export` | any | .xlsx; same filters as list, no paging |
+
+Per-asset history uses `GET /api/activity-logs?assetId={id}`.
 
 Search is case-insensitive (`ILIKE`) across AssetTag, Name, Brand, Model, SerialNumber,
 Location, and assignee name. `sortBy` is whitelisted (tag, name, category, status,
@@ -302,9 +303,9 @@ search/filters as the list view but ignores paging. Frontend downloads via blob.
 
 ## 13. Seed Data
 
-`DbSeeder` runs on startup in Development when the database is empty:
-- Users: `admin` (Admin), `jdoe` (User), plus 3 more normal users. Demo passwords are listed
-  in the README.
+`DbSeeder` runs on startup when `Seed:DemoData` is true (default) and the database has no users:
+- Users: `admin` / `Admin@123` (Admin), `user` / `User@123` (User), plus 4 more normal users
+  with password `User@123`.
 - ~30 assets across all categories and statuses, about two-thirds assigned.
 - Activity-log rows consistent with the seeded state (Created, then Assigned where applicable).
 - 5–6 tickets across statuses and priorities.
@@ -313,16 +314,22 @@ After seeding, `pg_dump` produces `database/seed.sql` for the submission.
 
 ## 14. Configuration
 
-- Connection string and JWT signing key come from `dotnet user-secrets` locally (or
-  environment variables); `appsettings.json` contains only placeholders.
+- `appsettings.Development.json` holds a default connection string
+  (`Username=postgres;Password=postgres`) and a clearly-labelled dev-only JWT key, so a
+  reviewer with default Postgres credentials can run immediately.
+- Real local credentials override it through `dotnet user-secrets`
+  (`ConnectionStrings:Default`) or the `ConnectionStrings__Default` environment variable.
+  Secrets never go in committed files.
 - `.gitignore` excludes `bin/`, `obj/`, `node_modules/`, `dist/`, local settings, and the
   confidential assessment PDF.
-- Migrations are applied automatically on startup in Development.
+- Migrations are applied automatically on startup.
 
 ## 15. Testing
 
-Backend integration tests (xUnit + `WebApplicationFactory` against a Testcontainers
-PostgreSQL instance, so `ILIKE`, filtered indexes, and `xmin` behave as in production):
+Backend integration tests (xUnit + `WebApplicationFactory`). Each test class gets its own
+throwaway database (`assetmanager_test_<guid>`) on the configured PostgreSQL server, created
+by migrations on startup and dropped afterwards, so `ILIKE`, filtered indexes, and `xmin`
+behave as in production. No Docker required:
 
 - Auth: valid login returns a token; wrong password and deleted user return 401.
 - Authorization: a User token gets 403 on every Admin-only endpoint; no token gets 401.
@@ -338,7 +345,27 @@ PostgreSQL instance, so `ILIKE`, filtered indexes, and `xmin` behave as in produ
 
 Frontend is verified manually and through the screenshots/demo deliverable.
 
-## 16. Deliverables Mapping (Part I)
+## 16. Additions From the UI Designs
+
+The Stitch designs in `design/` (tokens in `design/it_asset_manager_enterprise_system/DESIGN.md`,
+which match Ant Design defaults) add these small requirements on top of the sections above:
+
+- `User.Department` (optional, ≤ 100) — shown under names and on the assignment card; editable in user forms; exported.
+- `Asset.AssignedAt` (UTC, nullable) — "Assigned since" on asset details; set on assign/reassign, cleared on unassign.
+- Assign and unassign accept an optional `note` (≤ 500) that is appended to the activity-log details.
+  Unassign takes a JSON body (`{}` when there is no note).
+- `UserRefDto` carries `id, username, fullName, email, department`.
+- Asset list filter `assignedToUserId` (the new-ticket form lists the reporter's own assets).
+- Activity log: `search` (asset tag or name) and `GET /api/activity-logs/export` (Admin, .xlsx).
+- Activity-log diffs use readable enum names: `Status: In Service → Needs Repair`.
+- Tickets: ids start at 1001 (shown as `#1001`); list filters `search` (title, asset tag, or ticket number)
+  and `relatedAssetId`; `GET /api/tickets/stats` → `{ all, open, inProgress, resolved, closed, avgResolutionHours }`
+  over the tickets the caller can see.
+- Dashboard summary adds `addedLast30Days`.
+- Out of scope despite appearing in mock-ups: file attachments, "forgot password", SLA/compliance widgets,
+  department directory sync, dashboard date-range picker.
+
+## 17. Deliverables Mapping (Part I)
 
 | Brief asks for | Provided by |
 |---|---|
