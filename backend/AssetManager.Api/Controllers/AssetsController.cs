@@ -1,6 +1,7 @@
 using AssetManager.Api.Dtos;
 using AssetManager.Api.Entities;
 using AssetManager.Api.Infrastructure;
+using AssetManager.Api.Infrastructure.Excel;
 using AssetManager.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,13 @@ public sealed class AssetsController(AssetService assets) : ControllerBase
 
     [HttpGet("{id:int}")]
     public Task<AssetDto> Get(int id, CancellationToken ct) => assets.GetAsync(id, ct);
+
+    [HttpGet("export")]
+    public async Task<IActionResult> Export([FromQuery] AssetQuery query, CancellationToken ct)
+    {
+        var rows = await assets.ListForExportAsync(query, ct);
+        return File(Exports.Assets(rows), ExcelExporter.ContentType, $"assets_{DateTime.Now:yyyyMMdd_HHmm}.xlsx");
+    }
 
     [HttpPost]
     [Authorize(Roles = nameof(Role.Admin))]

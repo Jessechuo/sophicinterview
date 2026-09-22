@@ -15,6 +15,9 @@ public sealed class AssetService(AppDbContext db, ICurrentUser currentUser)
     public Task<PagedResult<AssetDto>> ListAsync(AssetQuery query, CancellationToken ct) =>
         Sort(Filter(query), query).Select(ToDto).ToPagedResultAsync(query, ct);
 
+    public Task<List<AssetDto>> ListForExportAsync(AssetQuery query, CancellationToken ct) =>
+        Sort(Filter(query), query).Select(ToDto).ToListAsync(ct);
+
     public async Task<AssetDto> GetAsync(int id, CancellationToken ct) =>
         await db.Assets.AsNoTracking().Where(a => a.Id == id && !a.IsDeleted).Select(ToDto).FirstOrDefaultAsync(ct)
         ?? throw new NotFoundException($"Asset {id} was not found.");
