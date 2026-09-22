@@ -1,0 +1,26 @@
+# Confidential assessment brief — never commit
+*ASSESSMENT*.pdf
+
+# .NET
+bin/
+obj/
+*.user
+.vs/
+appsettings.*.local.json
+
+# Node
+node_modules/
+dist/
+*.local
+
+# Editors / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+Thumbs.db
+.DS_Store
+
+# Env
+.env
+.env.*
+!.env.example
