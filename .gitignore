@@ -27,3 +27,6 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Local working notes and implementation plans — not published
+docs/superpowers/
