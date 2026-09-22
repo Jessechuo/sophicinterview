@@ -145,6 +145,23 @@ public sealed class UserManagementTests(ApiFactory factory) : IClassFixture<ApiF
     }
 
     [Fact]
+    public async Task Filters_by_whether_users_hold_assets()
+    {
+        var admin = await factory.ClientAsync(Role.Admin);
+        var m = Guid.NewGuid().ToString("N")[..10];
+        var holder = await factory.CreateUserAsync(fullName: $"Holder {m}");
+        var idle = await factory.CreateUserAsync(fullName: $"Idle {m}");
+        var asset = await admin.CreateAssetAsync();
+        (await admin.PostAsJsonAsync($"/api/assets/{asset.Id}/assign", new { userId = holder.Id })).EnsureSuccessStatusCode();
+
+        var holders = await (await admin.GetAsync($"/api/users?search={m}&hasAssets=true")).ReadAsync<PagedResult<UserDto>>();
+        var idlers = await (await admin.GetAsync($"/api/users?search={m}&hasAssets=false")).ReadAsync<PagedResult<UserDto>>();
+
+        Assert.Equal(holder.Id, holders.Items.Single().Id);
+        Assert.Equal(idle.Id, idlers.Items.Single().Id);
+    }
+
+    [Fact]
     public async Task Export_returns_users_as_xlsx()
     {
         var admin = await factory.ClientAsync(Role.Admin);

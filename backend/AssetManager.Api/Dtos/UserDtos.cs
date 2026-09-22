@@ -36,4 +36,5 @@ public sealed class UserQuery : PageQuery
 {
     public string? Search { get; set; }
     public Role? Role { get; set; }
+    public bool? HasAssets { get; set; }
 }

@@ -95,6 +95,7 @@ public sealed class UserService(AppDbContext db, ICurrentUser currentUser)
                 EF.Functions.ILike(u.Department!, pattern, Like.Escape));
         }
         if (q.Role is { } role) query = query.Where(u => u.Role == role);
+        if (q.HasAssets is { } has) query = query.Where(u => u.AssignedAssets.Any(a => !a.IsDeleted) == has);
         return query.OrderBy(u => u.FullName).ThenBy(u => u.Id);
     }
 
