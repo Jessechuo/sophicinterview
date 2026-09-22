@@ -35,6 +35,7 @@ export interface AssetRef {
   id: number
   assetTag: string
   name: string
+  category: AssetCategory
 }
 
 export interface CurrentUser {

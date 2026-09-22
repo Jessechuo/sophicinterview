@@ -43,7 +43,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={api}>
       {children}
-      <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[60] flex flex-col items-center gap-2 pointer-events-none" aria-live="polite">
+      {/* Top-right per DESIGN.md, just below the 64px header so it never covers the user menu. */}
+      <div className="fixed top-20 right-6 z-[60] flex flex-col items-end gap-2 pointer-events-none" aria-live="polite">
         {toasts.map((t) => {
           const s = STYLE[t.kind]
           return (
