@@ -26,6 +26,7 @@ builder.Services.AddScoped<ActivityLogService>();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TicketService>();
+builder.Services.AddScoped<DbSeeder>();
 
 var app = builder.Build();
 
