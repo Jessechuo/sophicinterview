@@ -3,6 +3,7 @@ using AssetManager.Api.Data;
 using AssetManager.Api.Infrastructure.Auth;
 using AssetManager.Api.Infrastructure.Errors;
 using AssetManager.Api.Services;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,14 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
     options.UseNpgsql(sp.GetRequiredService<IConfiguration>().GetConnectionString("Default")
         ?? throw new InvalidOperationException("Connection string 'Default' is not configured.")));
 builder.Services.AddJwtAuthentication();
+// The SPA may be hosted on another origin (e.g. Vercel); allowed origins come from Cors:AllowedOrigins.
+builder.Services.AddCors();
+builder.Services.AddOptions<CorsOptions>().Configure<IConfiguration>((options, config) =>
+{
+    var origins = config.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+    options.AddDefaultPolicy(policy => policy.WithOrigins(origins)
+        .AllowAnyHeader().AllowAnyMethod().WithExposedHeaders("Content-Disposition"));
+});
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AssetService>();
@@ -37,6 +46,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi().AllowAnonymous();
     app.UseSwaggerUI(o => o.SwaggerEndpoint("/openapi/v1.json", "Asset Manager API"));
 }
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -11,6 +11,7 @@ namespace AssetManager.Tests.Infrastructure;
 public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     public const string JwtKey = "integration-test-signing-key-0123456789abcdef";
+    public const string AllowedOrigin = "https://app.example.com";
     private readonly string _connectionString;
 
     public ApiFactory()
@@ -34,7 +35,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         {
             ["ConnectionStrings:Default"] = _connectionString,
             ["Jwt:Key"] = JwtKey,
-            ["Seed:DemoData"] = "false"
+            ["Seed:DemoData"] = "false",
+            ["Cors:AllowedOrigins:0"] = AllowedOrigin
         }));
     }
 
