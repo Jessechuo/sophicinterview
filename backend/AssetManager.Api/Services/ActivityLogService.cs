@@ -42,7 +42,7 @@ public sealed class ActivityLogService(AppDbContext db)
 
     private static readonly Expression<Func<ActivityLog, ActivityLogDto>> ToDto = l => new ActivityLogDto(
         l.Id,
-        new AssetRefDto(l.Asset.Id, l.Asset.AssetTag, l.Asset.Name),
+        new AssetRefDto(l.Asset.Id, l.Asset.AssetTag, l.Asset.Name, l.Asset.Category),
         l.Action,
         new UserRefDto(l.PerformedByUser.Id, l.PerformedByUser.Username, l.PerformedByUser.FullName,
             l.PerformedByUser.Email, l.PerformedByUser.Department),

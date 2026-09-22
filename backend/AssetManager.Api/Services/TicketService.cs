@@ -108,6 +108,8 @@ public sealed class TicketService(AppDbContext db, ICurrentUser currentUser)
         t.Id, t.Title, t.Description, t.Priority, t.Status,
         new UserRefDto(t.CreatedByUser.Id, t.CreatedByUser.Username, t.CreatedByUser.FullName,
             t.CreatedByUser.Email, t.CreatedByUser.Department),
-        t.RelatedAsset == null ? null : new AssetRefDto(t.RelatedAsset.Id, t.RelatedAsset.AssetTag, t.RelatedAsset.Name),
+        t.RelatedAsset == null
+            ? null
+            : new AssetRefDto(t.RelatedAsset.Id, t.RelatedAsset.AssetTag, t.RelatedAsset.Name, t.RelatedAsset.Category),
         t.ResolutionNote, t.CreatedAt, t.UpdatedAt, t.ResolvedAt);
 }

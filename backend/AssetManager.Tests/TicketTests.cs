@@ -35,6 +35,7 @@ public sealed class TicketTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal(TicketPriority.High, ticket.Priority);
         Assert.Equal(reporter.Id, ticket.CreatedBy.Id);
         Assert.Equal(asset.AssetTag, ticket.RelatedAsset?.AssetTag);
+        Assert.Equal(AssetCategory.Laptop, ticket.RelatedAsset?.Category);
         Assert.Null(ticket.ResolvedAt);
     }
 
