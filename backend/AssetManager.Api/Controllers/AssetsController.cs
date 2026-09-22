@@ -38,4 +38,14 @@ public sealed class AssetsController(AssetService assets) : ControllerBase
         await assets.DeleteAsync(id, ct);
         return NoContent();
     }
+
+    [HttpPost("{id:int}/assign")]
+    [Authorize(Roles = nameof(Role.Admin))]
+    public Task<AssetDto> Assign(int id, AssignAssetRequest request, CancellationToken ct) =>
+        assets.AssignAsync(id, request, ct);
+
+    [HttpPost("{id:int}/unassign")]
+    [Authorize(Roles = nameof(Role.Admin))]
+    public Task<AssetDto> Unassign(int id, UnassignAssetRequest request, CancellationToken ct) =>
+        assets.UnassignAsync(id, request, ct);
 }

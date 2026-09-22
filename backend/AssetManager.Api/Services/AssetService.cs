@@ -60,6 +60,41 @@ public sealed class AssetService(AppDbContext db, ICurrentUser currentUser)
         await db.SaveChangesAsync(ct);
     }
 
+    public async Task<AssetDto> AssignAsync(int id, AssignAssetRequest request, CancellationToken ct)
+    {
+        var asset = await FindAsync(id, ct);
+        if (asset.Status == AssetStatus.Retired)
+            throw new ConflictException("Retired assets cannot be assigned.");
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == request.UserId && !u.IsDeleted, ct)
+            ?? throw new BadRequestException("The selected user does not exist.");
+        if (asset.AssignedToUserId == user.Id)
+            throw new ConflictException($"{asset.AssetTag} is already assigned to {user.FullName}.");
+
+        if (asset.AssignedToUser is { } previous)
+            Log(asset, ActivityAction.Unassigned, previous.Id,
+                $"Unassigned from {previous.FullName} (reassigned to {user.FullName})");
+
+        asset.AssignedToUser = user;
+        asset.AssignedAt = DateTime.UtcNow;
+        Log(asset, ActivityAction.Assigned, user.Id, WithNote($"Assigned to {user.FullName}", request.Note));
+        await db.SaveChangesAsync(ct);
+        return await GetAsync(id, ct);
+    }
+
+    public async Task<AssetDto> UnassignAsync(int id, UnassignAssetRequest request, CancellationToken ct)
+    {
+        var asset = await FindAsync(id, ct);
+        if (asset.AssignedToUser is not { } previous)
+            throw new ConflictException($"{asset.AssetTag} is not assigned to anyone.");
+
+        asset.AssignedToUser = null;
+        asset.AssignedToUserId = null;
+        asset.AssignedAt = null;
+        Log(asset, ActivityAction.Unassigned, previous.Id, WithNote($"Unassigned from {previous.FullName}", request.Note));
+        await db.SaveChangesAsync(ct);
+        return await GetAsync(id, ct);
+    }
+
     private async Task<Asset> FindAsync(int id, CancellationToken ct) =>
         await db.Assets.Include(a => a.AssignedToUser).FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted, ct)
         ?? throw new NotFoundException($"Asset {id} was not found.");
@@ -120,6 +155,9 @@ public sealed class AssetService(AppDbContext db, ICurrentUser currentUser)
             Details = details,
             Timestamp = DateTime.UtcNow
         });
+
+    private static string WithNote(string text, string? note) =>
+        note.NullIfBlank() is { } n ? $"{text}. Note: {n}" : text;
 
     private static void Apply(Asset asset, AssetCreateRequest r)
     {
