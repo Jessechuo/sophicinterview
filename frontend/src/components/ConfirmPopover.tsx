@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from './Icon'
 
@@ -6,6 +6,7 @@ interface ConfirmPopoverProps {
   message: ReactNode
   confirmLabel?: string
   onConfirm: () => void
+  onOpenChange?: (open: boolean) => void
   // Renders the trigger; `open` lets it show its pressed state like the design's highlighted delete button.
   children: (props: { open: boolean; toggle: (event: MouseEvent<HTMLElement>) => void }) => ReactNode
 }
@@ -13,11 +14,19 @@ interface ConfirmPopoverProps {
 const WIDTH = 256
 
 // Ant-style popconfirm from the assets screen, rendered in a portal so table overflow never clips it.
-export function ConfirmPopover({ message, confirmLabel = 'Delete', onConfirm, children }: ConfirmPopoverProps) {
+export function ConfirmPopover({ message, confirmLabel = 'Delete', onConfirm, onOpenChange, children }: ConfirmPopoverProps) {
   const anchorRef = useRef<HTMLSpanElement>(null)
   const popRef = useRef<HTMLDivElement>(null)
-  const [rect, setRect] = useState<DOMRect | null>(null)
+  const [rect, setRectState] = useState<DOMRect | null>(null)
   const open = rect !== null
+
+  const setRect = useCallback(
+    (next: DOMRect | null) => {
+      setRectState(next)
+      onOpenChange?.(next !== null)
+    },
+    [onOpenChange],
+  )
 
   const toggle = (event: MouseEvent<HTMLElement>) => setRect(open ? null : event.currentTarget.getBoundingClientRect())
 
@@ -35,7 +44,7 @@ export function ConfirmPopover({ message, confirmLabel = 'Delete', onConfirm, ch
       window.removeEventListener('scroll', close, true)
       window.removeEventListener('resize', close)
     }
-  }, [open])
+  }, [open, setRect])
 
   const below = rect !== null && rect.top < 140
   const style = rect && {

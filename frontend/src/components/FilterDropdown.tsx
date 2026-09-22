@@ -34,7 +34,7 @@ export function FilterDropdown<T extends string>({ label, value, options, onChan
       <button
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="h-8 px-space-sm rounded-lg bg-surface hover:bg-surface-container text-on-surface font-caption text-caption flex items-center gap-space-xs transition-colors"
+        className="h-8 px-space-sm rounded-lg bg-surface hover:bg-surface-container text-on-surface font-caption text-caption flex items-center gap-space-xs transition-colors whitespace-nowrap"
         onClick={() => setOpen((o) => !o)}
         type="button"
       >
