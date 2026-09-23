@@ -29,10 +29,18 @@ All must-have, nice-to-have and extra-challenge features from the brief are impl
 
 ## Setup guide
 
-The system has three parts that run on your machine: **PostgreSQL** (database), the **API** (.NET, port
-`5080`) and the **web app** (React, port `5173`). You do not need to create the database or tables by
-hand: on first start the API creates the `assetmanager` database, applies the migrations and loads demo
-data.
+The system needs **PostgreSQL** plus the **API** (.NET) and the **web app** (React). You do not need to
+create the database or tables by hand: on first start the API creates the `assetmanager` database,
+applies the migrations and loads demo data.
+
+There are two ways to run it:
+
+- **[Just run the app](#7-optional-run-everything-from-one-terminal)** — build the web app once, then a
+  single `dotnet run` serves everything at http://localhost:5080. One terminal, same on any OS.
+- **[Develop the app](#4-start-the-api-terminal-1)** (steps 4–5 below) — API and web app in two
+  terminals, with instant refresh when you edit frontend code.
+
+Steps 1–3 are needed either way.
 
 ### 1. Install the prerequisites
 
@@ -102,6 +110,28 @@ port 5080, so no extra configuration is needed.
 | `admin` | `Admin@123` | Admin | Everything: assets, assignment, users, activity log, all tickets, exports |
 | `user` | `User@123` | User (Siti Aminah) | View assets and the dashboard, submit and track their own tickets |
 | `weijie`, `priya`, `farid`, `meiling` | `User@123` | User | Same as `user` |
+
+### 7. Optional: run everything from one terminal
+
+The API can serve the built web app itself, so one process and one command runs the whole system —
+the same way it would be deployed. Build once:
+
+```bash
+cd frontend
+npm install        # first time only
+npm run build:api  # builds the web app into the API's wwwroot folder
+```
+
+Then, from then on, only this:
+
+```bash
+cd backend/AssetManager.Api
+dotnet run
+```
+
+Open **http://localhost:5080** — the app and the API are both served there, and there is no second
+terminal and no port 5173. Re-run `npm run build:api` after changing frontend code, since this mode
+serves the built files rather than watching them.
 
 ### Optional: load the sample database from SQL
 

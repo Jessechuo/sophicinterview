@@ -33,3 +33,6 @@ docs/superpowers/
 
 # Local browser-automation output (screenshots, snapshots)
 .playwright-mcp/
+
+# Frontend build output served by the API in single-process mode
+backend/AssetManager.Api/wwwroot/

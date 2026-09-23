@@ -47,9 +47,32 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(o => o.SwaggerEndpoint("/openapi/v1.json", "Asset Manager API"));
 }
 app.UseCors();
+// When the built frontend has been copied into wwwroot (npm run build:api), this one process serves
+// the whole app: static assets here, and any non-API path falls back to the SPA's index.html.
+var hasSpa = app.Environment.WebRootPath is { } webRoot && File.Exists(Path.Combine(webRoot, "index.html"));
+if (hasSpa)
+{
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+}
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+if (hasSpa)
+{
+    // Unknown /api paths keep returning 404; every other path serves the SPA shell so that client-side
+    // routes such as /assets/12 work when opened or refreshed directly.
+    app.MapFallback(async context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            return;
+        }
+        context.Response.ContentType = "text/html";
+        await context.Response.SendFileAsync(Path.Combine(app.Environment.WebRootPath!, "index.html"));
+    }).AllowAnonymous();
+}
 
 await app.Services.InitializeDatabaseAsync();
 await app.RunAsync();
