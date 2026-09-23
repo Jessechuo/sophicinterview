@@ -1,6 +1,6 @@
 # Part II — Practical Understanding
 
-IT Asset Manager · CHUO JESSE
+**IT Asset Manager** · CHUO JESSE  
 Source code: https://github.com/Jessechuo/sophicinterview
 
 Answers to Q3, Q4 and Q5. (Q1 ERD and Q2 system process flow are supplied as separate diagram files.)
