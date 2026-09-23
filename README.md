@@ -10,7 +10,10 @@ what needs repair, and the IT support tickets raised against them.
 
 **Contents:** [Completed features](#completed-features) · [Setup guide](#setup-guide) ·
 [Tools and technologies](#tools-and-technologies) · [Running the tests](#running-the-tests) ·
-[Project structure](#project-structure) · [Error handling](#error-handling-summary)
+[Project structure](#project-structure)
+
+**Assessment Part II** (error handling strategy, features not implemented, debugging scenario):
+[`docs/part-ii-practical-understanding.md`](docs/part-ii-practical-understanding.md)
 
 ## Completed features
 
@@ -210,20 +213,8 @@ frontend/
   src/components/          app shell and shared UI (tables, tags, modal, toast, pagination…)
   src/pages/               one folder/file per screen
 database/seed.sql          pg_dump of the seeded demo database
-docs/                      design spec and screenshots
+docs/                      design spec, screenshots, assessment Part II write-up
 ```
-
-## Error handling (summary)
-
-- **Invalid input:** the forms validate before submitting; the API re-validates every request and returns
-  `400` ValidationProblemDetails with per-field messages, which the forms show under each field.
-- **Asset update errors:** missing record → `404`; duplicate tag/serial/username/email → `409` with the
-  field named; editing an asset someone else just changed → `409` and the form reloads the latest version;
-  rule violations (e.g. deleting an assigned asset) → `409` with an explanatory message shown as a toast.
-- **Unauthorized access:** no/expired token → `401` and the app returns to the login page;
-  wrong role → `403` (the UI also hides admin-only actions and redirects admin-only pages to a 403 screen).
-- **Unexpected errors:** a global exception handler logs the error and returns a generic `500`
-  ProblemDetails with a trace id — never a stack trace.
 
 ## Deployment notes
 
