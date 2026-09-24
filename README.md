@@ -35,7 +35,7 @@ All must-have, nice-to-have and extra-challenge features from the brief are impl
 | Assignment | Assign, reassign and unassign with optional notes; retired assets can't be assigned; assigned assets can't be retired or deleted until unassigned |
 | Excel export | Asset list, user list and activity log to `.xlsx` (respects the current filters) |
 | Dashboard | Totals, assigned vs unassigned donut, assets by status and by category, items needing attention |
-| User management *(nice-to-have)* | User CRUD, role assignment, department, "has assets" filter, export; admins can't delete or demote themselves; users holding assets can't be deleted |
+| User management *(nice-to-have)* | User CRUD, role assignment, department chosen from the ones already in use (or added inline), "has assets" filter, export; admins can't delete or demote themselves; users holding assets can't be deleted |
 | Activity log *(nice-to-have)* | Every Create / Update (with field-level diff) / Delete / Assign / Unassign is recorded in the same transaction as the change; filter by action, date range and asset; per-asset timeline |
 | IT tickets *(extra challenge)* | Users submit tickets (optionally linked to their own assets) and see only their own; admins see all, change status, add resolution notes; status counts, average resolution time and resolution rate |
 

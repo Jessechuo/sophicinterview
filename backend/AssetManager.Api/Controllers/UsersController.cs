@@ -19,6 +19,9 @@ public sealed class UsersController(UserService users) : ControllerBase
     [HttpGet("{id:int}")]
     public Task<UserDto> Get(int id, CancellationToken ct) => users.GetAsync(id, ct);
 
+    [HttpGet("departments")]
+    public Task<List<string>> Departments(CancellationToken ct) => users.ListDepartmentsAsync(ct);
+
     [HttpGet("export")]
     public async Task<IActionResult> Export([FromQuery] UserQuery query, CancellationToken ct)
     {

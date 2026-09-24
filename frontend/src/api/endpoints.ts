@@ -49,6 +49,7 @@ export const dashboardApi = {
 export const usersApi = {
   list: (query: UserQuery) => api.get<PagedResult<User>>('/api/users', { params: clean(query) }).then((r) => r.data),
   get: (id: number) => api.get<User>(`/api/users/${id}`).then((r) => r.data),
+  departments: () => api.get<string[]>('/api/users/departments').then((r) => r.data),
   create: (input: UserCreateInput) => api.post<User>('/api/users', input).then((r) => r.data),
   update: (id: number, input: UserUpdateInput) => api.put<User>(`/api/users/${id}`, input).then((r) => r.data),
   remove: (id: number) => api.delete(`/api/users/${id}`).then(() => undefined),

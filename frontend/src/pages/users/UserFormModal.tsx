@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { usersApi } from '../../api/endpoints'
 import { toAppError } from '../../api/errors'
@@ -23,6 +23,9 @@ interface FormState {
 }
 
 type Errors = Partial<Record<keyof FormState, string>>
+
+// Sentinel option that swaps the dropdown for a text box.
+const ADD_NEW = '__add-new__'
 
 const ROLES: { value: Role; label: string; hint: string }[] = [
   { value: 'Admin', label: 'Admin', hint: 'Full infrastructure access' },
@@ -54,6 +57,8 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
   const toast = useToast()
   const queryClient = useQueryClient()
   const [errors, setErrors] = useState<Errors>({})
+  const [addingDepartment, setAddingDepartment] = useState(false)
+  const departments = useQuery({ queryKey: ['departments'], queryFn: usersApi.departments })
   const [form, setForm] = useState<FormState>({
     fullName: user?.fullName ?? '',
     username: user?.username ?? '',
@@ -62,6 +67,9 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
     role: user?.role ?? 'User',
     password: '',
   })
+
+  // The current value must stay in the list, or editing a user would silently clear their department.
+  const departmentOptions = [...new Set([...(departments.data ?? []), ...(form.department ? [form.department] : [])])].sort()
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }))
@@ -90,6 +98,7 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
     },
     onSuccess: (saved) => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['departments'] })
       toast.success(isEdit ? `${saved.fullName} updated` : `${saved.fullName} added`)
       onClose()
     },
@@ -159,16 +168,64 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
         <UserField error={errors.email} icon="mail" id="user-email" label="Email Address" required>
           <input className={inputClass(errors.email)} id="user-email" maxLength={150} onChange={(e) => set('email', e.target.value)} type="email" value={form.email} />
         </UserField>
-        <UserField error={errors.department} icon="domain" id="user-department" label="Department">
-          <input
-            className={inputClass(errors.department)}
-            id="user-department"
-            maxLength={100}
-            onChange={(e) => set('department', e.target.value)}
-            placeholder="e.g. Finance Operations"
-            type="text"
-            value={form.department}
-          />
+        <UserField
+          error={errors.department}
+          hint={
+            addingDepartment ? (
+              <button
+                className="font-caption text-caption text-primary mt-1.5 hover:underline"
+                onClick={() => {
+                  setAddingDepartment(false)
+                  set('department', '')
+                }}
+                type="button"
+              >
+                Choose from the list instead
+              </button>
+            ) : undefined
+          }
+          icon="domain"
+          id="user-department"
+          label="Department"
+        >
+          {addingDepartment ? (
+            <input
+              autoFocus
+              className={inputClass(errors.department)}
+              id="user-department"
+              maxLength={100}
+              onChange={(e) => set('department', e.target.value)}
+              placeholder="e.g. Finance Operations"
+              type="text"
+              value={form.department}
+            />
+          ) : (
+            <>
+              <select
+                className={`${inputClass(errors.department)} pr-8 appearance-none cursor-pointer`}
+                id="user-department"
+                onChange={(e) => {
+                  if (e.target.value === ADD_NEW) {
+                    setAddingDepartment(true)
+                    set('department', '')
+                  } else set('department', e.target.value)
+                }}
+                value={form.department}
+              >
+                <option value="">No department</option>
+                {departmentOptions.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+                <option value={ADD_NEW}>+ Add new department…</option>
+              </select>
+              <Icon
+                name="expand_more"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px] pointer-events-none"
+              />
+            </>
+          )}
         </UserField>
         <div>
           <span className="block font-body-medium text-body-medium text-on-surface mb-2">

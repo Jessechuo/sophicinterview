@@ -162,6 +162,31 @@ public sealed class UserManagementTests(ApiFactory factory) : IClassFixture<ApiF
     }
 
     [Fact]
+    public async Task Lists_departments_in_use_once_each_and_sorted()
+    {
+        var admin = await factory.ClientAsync(Role.Admin);
+        var m = Guid.NewGuid().ToString("N")[..8];
+        async Task AddAsync(string department)
+        {
+            var username = NewUsername();
+            (await admin.PostAsJsonAsync("/api/users",
+                new { username, fullName = $"Dept {m}", email = $"{username}@company.local", department, role = "User", password = NewPassword }))
+                .EnsureSuccessStatusCode();
+        }
+        await AddAsync($"Zebra {m}");
+        await AddAsync($"Alpha {m}");
+        await AddAsync($"Alpha {m}");   // a shared department must still appear once
+
+        var departments = await (await admin.GetAsync("/api/users/departments")).ReadAsync<List<string>>();
+
+        Assert.Single(departments, d => d == $"Alpha {m}");
+        Assert.Contains($"Zebra {m}", departments);
+        Assert.Equal(departments.Distinct().Order().ToList(), departments);
+        Assert.Equal(HttpStatusCode.Forbidden,
+            (await (await factory.ClientAsync(Role.User)).GetAsync("/api/users/departments")).StatusCode);
+    }
+
+    [Fact]
     public async Task Export_returns_users_as_xlsx()
     {
         var admin = await factory.ClientAsync(Role.Admin);

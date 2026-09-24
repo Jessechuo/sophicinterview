@@ -17,6 +17,15 @@ public sealed class UserService(AppDbContext db, ICurrentUser currentUser)
     public Task<List<UserDto>> ListForExportAsync(UserQuery query, CancellationToken ct) =>
         Filter(query).Select(ToDto).ToListAsync(ct);
 
+    /// <summary>Departments already in use, so the user form can offer them instead of free text.</summary>
+    public Task<List<string>> ListDepartmentsAsync(CancellationToken ct) =>
+        db.Users.AsNoTracking()
+            .Where(u => !u.IsDeleted && u.Department != null)
+            .Select(u => u.Department!)
+            .Distinct()
+            .OrderBy(d => d)
+            .ToListAsync(ct);
+
     public async Task<UserDto> GetAsync(int id, CancellationToken ct) =>
         await db.Users.AsNoTracking().Where(u => u.Id == id && !u.IsDeleted).Select(ToDto).FirstOrDefaultAsync(ct)
         ?? throw new NotFoundException($"User {id} was not found.");
