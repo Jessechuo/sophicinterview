@@ -47,7 +47,7 @@ system on your own machine.
 The system has three parts: **PostgreSQL** for the data, the **API** written in C# on .NET, and the
 **web app** written in TypeScript with React.
 
-**Two ways to run it locally**, both written out below:
+**There are 3 ways to run this code locally.** The options are:
 
 - **Option A — just run it.** One terminal, one command, then open http://localhost:5080. Works the
   same on Windows, macOS and Linux. Use this to try the app.
