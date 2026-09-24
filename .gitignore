@@ -36,3 +36,7 @@ docs/superpowers/
 
 # Frontend build output served by the API in single-process mode
 backend/AssetManager.Api/wwwroot/
+
+# Assessment paperwork, kept locally only
+docs/
+submission/

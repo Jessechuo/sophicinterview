@@ -6,14 +6,10 @@ what needs repair, and the IT support tickets raised against them.
 - **Frontend:** React 19 + TypeScript (Vite), Tailwind CSS — `frontend/`
 - **Backend:** ASP.NET Core Web API on .NET 10 (C#) — `backend/`
 - **Database:** PostgreSQL 18 — sample data in `database/seed.sql`
-- **Design spec:** [`docs/design-spec.md`](docs/design-spec.md) · **Screenshots:** [`docs/screenshots/`](docs/screenshots/)
 
 **Contents:** [Completed features](#completed-features) · [Setup guide](#setup-guide) ·
 [Tools and technologies](#tools-and-technologies) · [Running the tests](#running-the-tests) ·
 [Project structure](#project-structure)
-
-**Assessment Part II** (error handling strategy, features not implemented, debugging scenario):
-[`docs/part-ii-practical-understanding.md`](docs/part-ii-practical-understanding.md)
 
 ## Completed features
 
@@ -197,7 +193,7 @@ variable, falling back to `postgres` / `postgres`. They don't read `appsettings.
 you used the quick alternative in step 3, set user-secrets as well.
 
 The frontend is type-checked and linted with `npm run build` and `npm run lint` (run inside
-`frontend/`), and was verified end-to-end in a browser as both roles (screenshots in `docs/screenshots/`).
+`frontend/`), and was verified end-to-end in a browser as both roles.
 
 ## Project structure
 
@@ -213,7 +209,6 @@ frontend/
   src/components/          app shell and shared UI (tables, tags, modal, toast, pagination…)
   src/pages/               one folder/file per screen
 database/seed.sql          pg_dump of the seeded demo database
-docs/                      design spec, screenshots, assessment Part II write-up
 ```
 
 ## Deployment notes
