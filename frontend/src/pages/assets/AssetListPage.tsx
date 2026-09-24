@@ -27,7 +27,7 @@ const SORTABLE = [
 ] as const
 
 export function AssetListPage() {
-  const { isAdmin } = useAuth()
+  const { user, isAdmin } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -41,6 +41,8 @@ export function AssetListPage() {
   const assignment = (params.get('assigned') ?? '') as 'true' | 'false' | ''
   // The dashboard's "needs attention" card links here; it covers repairs and maintenance together.
   const needsAttention = params.get('needsAttention') === 'true'
+  // Employees land on their own equipment; clearing the chip shows the whole register, read-only.
+  const onlyMine = !isAdmin && params.get('mine') !== '0'
   const sortBy = params.get('sortBy') ?? ''
   const sortDir = params.get('sortDir') === 'desc' ? 'desc' : 'asc'
   const page = Math.max(1, Number(params.get('page')) || 1)
@@ -68,6 +70,7 @@ export function AssetListPage() {
     category: category || undefined,
     assigned: assignment === '' ? undefined : assignment === 'true',
     needsAttention: needsAttention || undefined,
+    assignedToUserId: onlyMine ? user?.id : undefined,
     sortBy: sortBy || undefined,
     sortDir: sortBy ? sortDir : undefined,
   }
@@ -112,10 +115,16 @@ export function AssetListPage() {
       <div className="flex items-center justify-between mb-space-md">
         <div className="flex items-center gap-space-sm">
           <h1 className="font-page-title text-page-title text-on-surface">Assets</h1>
-          {total !== undefined && (
+          {onlyMine ? (
             <span className="font-tag-label text-tag-label bg-secondary-container text-on-secondary-fixed font-medium px-space-sm py-0.5 rounded-full shadow-xs">
-              {total} total
+              {assets.data?.totalCount ?? 0} assigned to you
             </span>
+          ) : (
+            total !== undefined && (
+              <span className="font-tag-label text-tag-label bg-secondary-container text-on-secondary-fixed font-medium px-space-sm py-0.5 rounded-full shadow-xs">
+                {total} total
+              </span>
+            )
           )}
         </div>
         {operational && (
@@ -140,6 +149,28 @@ export function AssetListPage() {
               value={searchInput}
             />
           </div>
+          {!isAdmin &&
+            (onlyMine ? (
+              <button
+                className="h-8 px-space-sm rounded-lg bg-primary-container text-on-primary-container font-body-medium text-body-medium flex items-center gap-1.5 shadow-xs whitespace-nowrap shrink-0"
+                onClick={() => update({ mine: '0' })}
+                title="Show every asset in the register"
+                type="button"
+              >
+                <span>My assets</span>
+                <Icon name="close" className="text-[16px]" />
+              </button>
+            ) : (
+              <button
+                className="h-8 px-space-sm rounded-lg bg-surface hover:bg-surface-container text-on-surface font-body-medium text-body-medium flex items-center gap-1.5 shadow-xs whitespace-nowrap shrink-0"
+                onClick={() => update({ mine: null })}
+                title="Show only the assets assigned to you"
+                type="button"
+              >
+                <Icon name="person" className="text-[16px]" />
+                <span>My assets</span>
+              </button>
+            ))}
           <FilterDropdown
             label="Status"
             onChange={(v) => update(v === ATTENTION ? { status: null, needsAttention: 'true' } : { status: v, needsAttention: null })}

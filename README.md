@@ -10,7 +10,7 @@ what needs repair, and the IT support tickets raised against them.
 | Username | Password | Role | What they can do |
 |---|---|---|---|
 | `admin` | `Admin@123` | Admin | Everything: assets, assignment, users, activity log, all tickets, exports |
-| `user` | `User@123` | User | View assets and the dashboard, submit and track their own tickets |
+| `user` | `User@123` | User | See their own equipment, the dashboard, and the tickets they raised |
 
 Hosted on Railway as a single container (API plus the built frontend) with a managed PostgreSQL
 database. Nothing needs installing to try it; the [setup guide](#setup-guide) below is for running it
@@ -34,7 +34,7 @@ All must-have, nice-to-have and extra-challenge features from the brief are impl
 | Assets | Paged, sortable list; search across tag, name, brand, model, serial, location and assignee; filters by status, category and assignment; details page; create / edit / delete (soft delete) with confirmation; optimistic-concurrency protection on edit; auto-saved draft for new assets |
 | Assignment | Assign, reassign and unassign with optional notes; retired assets can't be assigned; assigned assets can't be retired or deleted until unassigned |
 | Excel export | Asset list, user list and activity log to `.xlsx` (respects the current filters) |
-| Dashboard | Totals, assigned vs unassigned donut, assets by status and by category, items needing attention |
+| Dashboard | Totals, assigned vs unassigned donut, assets by status and by category, items needing attention; every figure links through to the matching asset list |
 | User management *(nice-to-have)* | User CRUD, role assignment, department chosen from the ones already in use (or added inline), "has assets" filter, export; admins can't delete or demote themselves; users holding assets can't be deleted |
 | Activity log *(nice-to-have)* | Every Create / Update (with field-level diff) / Delete / Assign / Unassign is recorded in the same transaction as the change; filter by action, date range and asset; per-asset timeline |
 | IT tickets *(extra challenge)* | Users submit tickets (optionally linked to their own assets) and see only their own; admins see all, change status, add resolution notes; status counts, average resolution time and resolution rate |
@@ -150,7 +150,7 @@ when you are done.
 | Username | Password | Role | What they can do |
 |---|---|---|---|
 | `admin` | `Admin@123` | Admin | Everything: assets, assignment, users, activity log, all tickets, exports |
-| `user` | `User@123` | User (Siti Aminah) | View assets and the dashboard, submit and track their own tickets |
+| `user` | `User@123` | User (Siti Aminah) | See the equipment assigned to them (and the whole register if they clear that filter), the dashboard, and their own tickets |
 | `weijie`, `priya`, `farid`, `meiling` | `User@123` | User | Same as `user` |
 
 ### 7. Option C — run it with Docker

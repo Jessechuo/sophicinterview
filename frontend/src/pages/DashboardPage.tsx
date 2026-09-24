@@ -82,14 +82,14 @@ export function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-lg">
-        <StatCard icon="devices" iconClass="bg-secondary-container text-primary" label="Total Assets" to="/assets" value={total}>
+        <StatCard icon="devices" iconClass="bg-secondary-container text-primary" label="Total Assets" to="/assets?mine=0" value={total}>
           <div className="mt-space-md pt-space-sm bg-surface-container-low/50 -mx-space-md -mb-space-md px-space-md py-space-sm rounded-b-xl flex items-center gap-space-xs">
             <Icon name="trending_up" className="text-[16px] text-tertiary" />
             <span className="font-caption text-caption text-tertiary font-medium">+{addedLast30Days} added</span>
             <span className="font-caption text-caption text-on-surface-variant">in the last 30 days</span>
           </div>
         </StatCard>
-        <StatCard icon="how_to_reg" iconClass="bg-tertiary-fixed-dim/20 text-tertiary" label="Assigned" to="/assets?assigned=true" value={assigned}>
+        <StatCard icon="how_to_reg" iconClass="bg-tertiary-fixed-dim/20 text-tertiary" label="Assigned" to="/assets?assigned=true&mine=0" value={assigned}>
           <div className="mt-space-md pt-space-sm bg-surface-container-low/50 -mx-space-md -mb-space-md px-space-md py-space-sm rounded-b-xl flex items-center justify-between">
             <span className="font-caption text-caption text-on-surface-variant">Utilization Rate</span>
             <span className="font-tag-label text-tag-label text-tertiary bg-surface-container-lowest px-space-xs py-0.5 rounded shadow-xs font-semibold">
@@ -97,7 +97,7 @@ export function DashboardPage() {
             </span>
           </div>
         </StatCard>
-        <StatCard icon="inventory_2" iconClass="bg-surface-container-high text-on-surface-variant" label="Unassigned" to="/assets?assigned=false" value={unassigned}>
+        <StatCard icon="inventory_2" iconClass="bg-surface-container-high text-on-surface-variant" label="Unassigned" to="/assets?assigned=false&mine=0" value={unassigned}>
           <div className="mt-space-md pt-space-sm bg-surface-container-low/50 -mx-space-md -mb-space-md px-space-md py-space-sm rounded-b-xl flex items-center gap-space-xs">
             <span className="w-2 h-2 rounded-full bg-secondary" />
             <span className="font-caption text-caption text-on-surface-variant">
@@ -105,7 +105,7 @@ export function DashboardPage() {
             </span>
           </div>
         </StatCard>
-        <StatCard danger icon="warning" iconClass="bg-error-container/60 text-error" label="Needs Attention" to="/assets?needsAttention=true" value={needsAttention}>
+        <StatCard danger icon="warning" iconClass="bg-error-container/60 text-error" label="Needs Attention" to="/assets?needsAttention=true&mine=0" value={needsAttention}>
           <div className="mt-space-md pt-space-sm bg-error-container/20 -mx-space-md -mb-space-md px-space-md py-space-sm rounded-b-xl flex items-center justify-between">
             <span className="font-caption text-caption text-on-error-container font-medium">{repairs} repairs</span>
             <span className="w-1 h-1 rounded-full bg-outline-variant" />
@@ -125,7 +125,7 @@ export function DashboardPage() {
               aria-label="Open the asset list"
               className="text-on-surface-variant hover:text-primary transition-colors p-1 rounded hover:bg-surface-container"
               title="Open the asset list"
-              to="/assets"
+              to="/assets?mine=0"
             >
               <Icon name="more_vert" className="text-[18px]" />
             </Link>
@@ -182,7 +182,7 @@ export function DashboardPage() {
                     key={bar.status}
                     className="flex flex-col items-center gap-space-xs h-full justify-end group cursor-pointer"
                     title={`${bar.label}: ${count}`}
-                    to={`/assets?status=${bar.status}`}
+                    to={`/assets?mine=0&status=${bar.status}`}
                   >
                     <span className={`font-tag-label text-tag-label font-semibold ${bar.text} opacity-0 group-hover:opacity-100 transition-opacity`}>{count}</span>
                     <div
@@ -315,7 +315,7 @@ function CategoryRow({ category, count, total, fullWidth }: { category: AssetCat
   return (
     <Link
       className={`flex items-center gap-space-md p-space-sm rounded-lg hover:bg-surface-container-low/60 transition-colors ${fullWidth ? 'md:col-span-2' : ''}`}
-      to={`/assets?category=${category}`}
+      to={`/assets?mine=0&category=${category}`}
     >
       <div className={`w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center ${style.iconClass} shrink-0`}>
         <Icon name={style.icon} className="text-[20px]" />
