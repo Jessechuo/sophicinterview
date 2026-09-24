@@ -53,8 +53,10 @@ The system has three parts: **PostgreSQL** for the data, the **API** written in 
   same on Windows, macOS and Linux. Use this to try the app.
 - **Option B — run it for development.** Two terminals, then open http://localhost:5173. The browser
   refreshes by itself when you edit frontend code.
+- **Option C — run it with Docker.** One command, and nothing to install but Docker itself: no .NET
+  SDK, no Node.js. This is the image the live demo runs. See [step 7](#7-option-c--run-it-with-docker).
 
-Steps 1 to 3 are needed either way.
+Steps 1 to 3 are needed for options A and B. Option C only needs Docker and a PostgreSQL to point at.
 
 ### 1. Install the prerequisites
 
@@ -150,6 +152,21 @@ when you are done.
 | `admin` | `Admin@123` | Admin | Everything: assets, assignment, users, activity log, all tickets, exports |
 | `user` | `User@123` | User (Siti Aminah) | View assets and the dashboard, submit and track their own tickets |
 | `weijie`, `priya`, `farid`, `meiling` | `User@123` | User | Same as `user` |
+
+### 7. Option C — run it with Docker
+
+The `Dockerfile` builds the frontend, copies it into the API and ships one container that serves both.
+With [Docker Desktop](https://www.docker.com/products/docker-desktop/) running, from the repository
+root:
+
+```bash
+docker build -t assetmanager .
+docker run -p 8080:8080   -e "ConnectionStrings__Default=Host=host.docker.internal;Database=assetmanager;Username=postgres;Password=YOUR_PASSWORD"   -e "Jwt__Key=any-32-character-string-for-local-use"   assetmanager
+```
+
+Open **http://localhost:8080**. `host.docker.internal` is how the container reaches PostgreSQL running
+on your machine; point it at any other PostgreSQL if you prefer. On Linux add `--add-host
+host.docker.internal:host-gateway`.
 
 ### Optional: load the sample database from SQL
 
