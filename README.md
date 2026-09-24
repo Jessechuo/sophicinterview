@@ -28,33 +28,33 @@ All must-have, nice-to-have and extra-challenge features from the brief are impl
 
 ## Setup guide
 
-The system needs **PostgreSQL** plus the **API** (.NET) and the **web app** (React). You do not need to
-create the database or tables by hand: on first start the API creates the `assetmanager` database,
-applies the migrations and loads demo data.
+The system has three parts: **PostgreSQL** for the data, the **API** written in C# on .NET, and the
+**web app** written in TypeScript with React.
 
-There are two ways to run it:
+**Two ways to run it**, both written out below:
 
-- **[Just run the app](#7-optional-run-everything-from-one-terminal)** — build the web app once, then a
-  single `dotnet run` serves everything at http://localhost:5080. One terminal, same on any OS.
-- **[Develop the app](#4-start-the-api-terminal-1)** (steps 4–5 below) — API and web app in two
-  terminals, with instant refresh when you edit frontend code.
+- **Option A — just run it.** One terminal, one command, then open http://localhost:5080. Works the
+  same on Windows, macOS and Linux. Use this to try the app.
+- **Option B — run it for development.** Two terminals, then open http://localhost:5173. The browser
+  refreshes by itself when you edit frontend code.
 
-Steps 1–3 are needed either way.
+Steps 1 to 3 are needed either way.
 
 ### 1. Install the prerequisites
 
-| Tool | Version | Download | Check with |
-|---|---|---|---|
-| .NET SDK | 10.0 | https://dotnet.microsoft.com/download/dotnet/10.0 | `dotnet --version` → `10.x` |
-| Node.js | 22 LTS or newer | https://nodejs.org | `node --version` |
-| PostgreSQL | 16 or newer (built on 18) | https://www.postgresql.org/download/ | pgAdmin, or `psql --version` |
-| Git | any | https://git-scm.com | `git --version` |
+| Tool | Version | Download | What it is for | Check it with |
+|---|---|---|---|---|
+| .NET SDK | 10.0 | https://dotnet.microsoft.com/download/dotnet/10.0 | Builds and runs the C# backend | `dotnet --version` → `10.x` |
+| Node.js | 22 LTS or newer | https://nodejs.org | Builds and runs the React frontend | `node --version` |
+| PostgreSQL | 16 or newer (built on 18) | https://www.postgresql.org/download/ | Stores all the data | `psql --version`, or open pgAdmin |
+| Git | any | https://git-scm.com | Downloads the code | `git --version` |
 
-When installing PostgreSQL, keep the default port **5432** and **write down the password you choose for
-the `postgres` user**, as step 3 needs it. The installer registers PostgreSQL as a Windows service, so it
-starts automatically with the machine.
+While installing PostgreSQL, keep the default port **5432** and **write down the password you choose for
+the `postgres` user** — step 3 needs it. The installer also sets PostgreSQL up as a Windows service, so
+it starts with the machine and needs no attention afterwards. pgAdmin comes with it and is optional.
 
-> After installing the .NET SDK or Node.js, open a **new** terminal so the `dotnet` / `node` commands are found.
+> After installing the .NET SDK or Node.js, open a **new** terminal, otherwise the `dotnet` and `node`
+> commands will not be found.
 
 ### 2. Get the code
 
@@ -65,11 +65,13 @@ cd sophicinterview
 
 ### 3. Tell the API your PostgreSQL password
 
-The API connects as `postgres` to `localhost:5432`. Pick **one** option:
+The API connects as user `postgres` to `localhost:5432`. You do not need to create the database or any
+tables: on first start the API creates the `assetmanager` database, applies the migrations and loads the
+demo data. Pick **one** of these:
 
-- **Your password is `postgres`:** nothing to do. This is the default in
+- **Your password is `postgres`:** nothing to do. That is the default in
   `backend/AssetManager.Api/appsettings.Development.json`.
-- **Any other password (recommended way):** store it with .NET user-secrets, which keeps it outside the
+- **Any other password (recommended):** store it with .NET user-secrets, which keeps it out of the
   repository:
 
   ```bash
@@ -77,30 +79,53 @@ The API connects as `postgres` to `localhost:5432`. Pick **one** option:
   dotnet user-secrets set "ConnectionStrings:Default" "Host=localhost;Port=5432;Database=assetmanager;Username=postgres;Password=YOUR_PASSWORD"
   ```
 
-- **Quick alternative:** replace `Password=postgres` in `appsettings.Development.json` with your password
-  (don't commit that change).
+- **Quick alternative:** edit `Password=postgres` in `appsettings.Development.json` to your password
+  (do not commit that change).
 
-### 4. Start the API (terminal 1)
+### 4. Option A — run everything from one terminal
+
+The API can serve the built frontend itself, which is also how the app would be deployed. Build the
+frontend once:
+
+```bash
+cd frontend
+npm install        # first time only
+npm run build:api  # puts the built frontend inside the API
+```
+
+After that, this single command runs the whole system:
 
 ```bash
 cd backend/AssetManager.Api
 dotnet run
 ```
 
-Wait for `Now listening on: http://localhost:5080`. The first start takes a little longer while it
-creates the database and seeds **6 users, 30 assets, 6 tickets** and their activity history.
-Leave this terminal open. Interactive API docs (Swagger UI) are at http://localhost:5080/swagger.
+Wait for `Now listening on: http://localhost:5080`, then open **http://localhost:5080**. The first start
+takes a little longer while it creates the database and seeds **6 users, 30 assets and 6 tickets** with
+their activity history. Interactive API docs (Swagger UI) are at http://localhost:5080/swagger.
 
-### 5. Start the web app (terminal 2)
+Re-run `npm run build:api` after changing frontend code, since this mode serves the built files.
+
+### 5. Option B — run it for development (two terminals)
+
+Terminal 1, the API:
+
+```bash
+cd backend/AssetManager.Api
+dotnet run          # http://localhost:5080
+```
+
+Terminal 2, the frontend:
 
 ```bash
 cd frontend
-npm install        # first time only
-npm run dev
+npm install         # first time only
+npm run dev         # http://localhost:5173
 ```
 
-Open **http://localhost:5173**. In development the web app forwards every `/api` call to the API on
-port 5080, so no extra configuration is needed.
+Open **http://localhost:5173**. The frontend forwards every `/api` call to the API on port 5080, so
+there is nothing else to configure. Leave both terminals open while you work, and press `Ctrl+C` in each
+when you are done.
 
 ### 6. Sign in
 
@@ -109,28 +134,6 @@ port 5080, so no extra configuration is needed.
 | `admin` | `Admin@123` | Admin | Everything: assets, assignment, users, activity log, all tickets, exports |
 | `user` | `User@123` | User (Siti Aminah) | View assets and the dashboard, submit and track their own tickets |
 | `weijie`, `priya`, `farid`, `meiling` | `User@123` | User | Same as `user` |
-
-### 7. Optional: run everything from one terminal
-
-The API can serve the built web app itself, so one process and one command runs the whole system —
-the same way it would be deployed. Build once:
-
-```bash
-cd frontend
-npm install        # first time only
-npm run build:api  # builds the web app into the API's wwwroot folder
-```
-
-Then, from then on, only this:
-
-```bash
-cd backend/AssetManager.Api
-dotnet run
-```
-
-Open **http://localhost:5080** — the app and the API are both served there, and there is no second
-terminal and no port 5173. Re-run `npm run build:api` after changing frontend code, since this mode
-serves the built files rather than watching them.
 
 ### Optional: load the sample database from SQL
 
