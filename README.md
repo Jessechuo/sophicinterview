@@ -3,13 +3,26 @@
 A web tool for an IT team to track company assets: who holds what, what state each asset is in,
 what needs repair, and the IT support tickets raised against them.
 
+## Live demo
+
+**https://sophicinterview.up.railway.app**
+
+| Username | Password | Role | What they can do |
+|---|---|---|---|
+| `admin` | `Admin@123` | Admin | Everything: assets, assignment, users, activity log, all tickets, exports |
+| `user` | `User@123` | User | View assets and the dashboard, submit and track their own tickets |
+
+Hosted on Railway as a single container (API plus the built frontend) with a managed PostgreSQL
+database. Nothing needs installing to try it; the [setup guide](#setup-guide) below is for running it
+on your own machine.
+
 - **Frontend:** React 19 + TypeScript (Vite), Tailwind CSS — `frontend/`
 - **Backend:** ASP.NET Core Web API on .NET 10 (C#) — `backend/`
 - **Database:** PostgreSQL 18 — sample data in `database/seed.sql`
 
 **Contents:** [Completed features](#completed-features) · [Setup guide](#setup-guide) ·
 [Tools and technologies](#tools-and-technologies) · [Running the tests](#running-the-tests) ·
-[Project structure](#project-structure)
+[Project structure](#project-structure) · [Deployment](#deployment)
 
 ## Completed features
 
@@ -28,10 +41,13 @@ All must-have, nice-to-have and extra-challenge features from the brief are impl
 
 ## Setup guide
 
+Everything below is optional — the [live demo](#live-demo) is already running. Follow it to run the
+system on your own machine.
+
 The system has three parts: **PostgreSQL** for the data, the **API** written in C# on .NET, and the
 **web app** written in TypeScript with React.
 
-**Two ways to run it**, both written out below:
+**Two ways to run it locally**, both written out below:
 
 - **Option A — just run it.** One terminal, one command, then open http://localhost:5080. Works the
   same on Windows, macOS and Linux. Use this to try the app.
@@ -214,26 +230,28 @@ frontend/
 database/seed.sql          pg_dump of the seeded demo database
 ```
 
-## Deployment notes
+## Deployment
 
-The `Dockerfile` builds the whole system into one image: the frontend is compiled, copied into the
-API's `wwwroot`, and one container then serves both the app and its API. It listens on the port given
-in `PORT` (8080 by default), applies the migrations on startup and seeds the demo data into an empty
-database.
+The live demo above runs on **Railway**: one service built from the `Dockerfile`, plus a managed
+PostgreSQL database in the same project.
 
-**Railway (one project, two services):**
+The `Dockerfile` builds the whole system into one image — the frontend is compiled, copied into the
+API's `wwwroot`, and a single container then serves both the app and its API. It listens on the port
+given in `PORT` (8080 by default), applies the migrations on startup, and seeds the demo data into an
+empty database.
 
-1. New Project → Deploy from GitHub repo → pick this repository. Railway builds from the `Dockerfile`.
-2. In the same project, add a **PostgreSQL** database.
-3. On the app service, set two variables:
+**Deploying it yourself, on Railway or any container host:**
+
+1. Create a project from this repository; the build uses the `Dockerfile` automatically.
+2. Add a **PostgreSQL** database to the same project.
+3. Set two variables on the app service:
    - `ConnectionStrings__Default` = `${{Postgres.DATABASE_URL}}` (the `postgres://` URL is converted
-     automatically)
+     automatically; a plain key/value connection string works too)
    - `Jwt__Key` = any random string of 32 characters or more
-4. Settings → Networking → Generate Domain, and open it.
+4. Expose the service on port **8080** and open the generated domain.
 
-Any other container host works the same way. The API and the app share an origin, so no CORS
-configuration is needed; `Cors__AllowedOrigins__0` is only for hosting the frontend separately, for
-example on Vercel with `VITE_API_BASE_URL` pointing at the API.
+The app and the API share one origin, so no CORS setup is needed. `Cors__AllowedOrigins__0` exists for
+hosting the frontend separately, for example on Vercel with `VITE_API_BASE_URL` pointing at the API.
 
 To run the same image locally:
 
