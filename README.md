@@ -216,11 +216,31 @@ database/seed.sql          pg_dump of the seeded demo database
 
 ## Deployment notes
 
-- **Frontend → Vercel:** set the project root to `frontend/`; `vercel.json` provides the SPA fallback.
-  Set `VITE_API_BASE_URL` to the API's public URL.
-- **API → a .NET-capable host** (e.g. Render, Railway, Azure App Service) with a hosted PostgreSQL
-  (e.g. Neon). Configure `ConnectionStrings__Default`, `Jwt__Key` (32+ characters) and
-  `Cors__AllowedOrigins__0=<your Vercel URL>`. Migrations run automatically on startup.
+The `Dockerfile` builds the whole system into one image: the frontend is compiled, copied into the
+API's `wwwroot`, and one container then serves both the app and its API. It listens on the port given
+in `PORT` (8080 by default), applies the migrations on startup and seeds the demo data into an empty
+database.
+
+**Railway (one project, two services):**
+
+1. New Project → Deploy from GitHub repo → pick this repository. Railway builds from the `Dockerfile`.
+2. In the same project, add a **PostgreSQL** database.
+3. On the app service, set two variables:
+   - `ConnectionStrings__Default` = `${{Postgres.DATABASE_URL}}` (the `postgres://` URL is converted
+     automatically)
+   - `Jwt__Key` = any random string of 32 characters or more
+4. Settings → Networking → Generate Domain, and open it.
+
+Any other container host works the same way. The API and the app share an origin, so no CORS
+configuration is needed; `Cors__AllowedOrigins__0` is only for hosting the frontend separately, for
+example on Vercel with `VITE_API_BASE_URL` pointing at the API.
+
+To run the same image locally:
+
+```bash
+docker build -t assetmanager .
+docker run -p 8080:8080 -e "ConnectionStrings__Default=Host=host.docker.internal;Database=assetmanager;Username=postgres;Password=YOUR_PASSWORD" -e "Jwt__Key=any-32-character-string-for-local-use" assetmanager
+```
 
 ## Design notes and deviations
 

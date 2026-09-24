@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using AssetManager.Api.Data;
+using AssetManager.Api.Infrastructure;
 using AssetManager.Api.Infrastructure.Auth;
 using AssetManager.Api.Infrastructure.Errors;
 using AssetManager.Api.Services;
@@ -9,6 +10,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Container hosts (Railway, Render, Fly) pick the port at runtime and pass it in PORT.
+if (Environment.GetEnvironmentVariable("PORT") is { Length: > 0 } port)
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 builder.Services
     .AddControllers(o => o.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider()))
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -17,8 +22,15 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 // Resolved lazily so test overrides of the connection string are honoured.
 builder.Services.AddDbContext<AppDbContext>((sp, options) =>
-    options.UseNpgsql(sp.GetRequiredService<IConfiguration>().GetConnectionString("Default")
-        ?? throw new InvalidOperationException("Connection string 'Default' is not configured.")));
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    // Managed hosts supply a postgres:// URL, locally it is a key/value string; both are accepted.
+    var connectionString = DatabaseUrl.ToConnectionString(config.GetConnectionString("Default"))
+        ?? DatabaseUrl.ToConnectionString(config["DATABASE_URL"])
+        ?? throw new InvalidOperationException(
+            "No database configured. Set ConnectionStrings__Default (or DATABASE_URL).");
+    options.UseNpgsql(connectionString);
+});
 builder.Services.AddJwtAuthentication();
 // The SPA may be hosted on another origin (e.g. Vercel); allowed origins come from Cors:AllowedOrigins.
 builder.Services.AddCors();

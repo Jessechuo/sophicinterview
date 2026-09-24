@@ -1,0 +1,10 @@
+**/bin
+**/obj
+**/node_modules
+**/dist
+backend/AssetManager.Api/wwwroot
+backend/AssetManager.Tests
+.git
+docs
+submission
+database
