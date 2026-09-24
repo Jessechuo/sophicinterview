@@ -17,6 +17,9 @@ import { formatDate } from '../../lib/format'
 import { categoryIcon, categoryLabel, statusLabel } from '../../lib/labels'
 import { useDebounced } from '../../lib/useDebounced'
 
+// Repairs and maintenance together — one option, because that is what the dashboard counts.
+const ATTENTION = 'needs-attention'
+
 const PAGE_SIZE = 10
 const SORTABLE = [
   { key: 'tag', label: 'Asset Tag' },
@@ -36,6 +39,8 @@ export function AssetListPage() {
   const status = (params.get('status') ?? '') as AssetStatus | ''
   const category = (params.get('category') ?? '') as AssetCategory | ''
   const assignment = (params.get('assigned') ?? '') as 'true' | 'false' | ''
+  // The dashboard's "needs attention" card links here; it covers repairs and maintenance together.
+  const needsAttention = params.get('needsAttention') === 'true'
   const sortBy = params.get('sortBy') ?? ''
   const sortDir = params.get('sortDir') === 'desc' ? 'desc' : 'asc'
   const page = Math.max(1, Number(params.get('page')) || 1)
@@ -62,6 +67,7 @@ export function AssetListPage() {
     status: status || undefined,
     category: category || undefined,
     assigned: assignment === '' ? undefined : assignment === 'true',
+    needsAttention: needsAttention || undefined,
     sortBy: sortBy || undefined,
     sortDir: sortBy ? sortDir : undefined,
   }
@@ -136,9 +142,12 @@ export function AssetListPage() {
           </div>
           <FilterDropdown
             label="Status"
-            onChange={(v) => update({ status: v })}
-            options={ASSET_STATUSES.map((s) => ({ value: s, label: statusLabel[s] }))}
-            value={status}
+            onChange={(v) => update(v === ATTENTION ? { status: null, needsAttention: 'true' } : { status: v, needsAttention: null })}
+            options={[
+              ...ASSET_STATUSES.map((s) => ({ value: s, label: statusLabel[s] })),
+              { value: ATTENTION, label: 'Needs attention' },
+            ]}
+            value={needsAttention ? ATTENTION : status}
           />
           <FilterDropdown
             label="Category"

@@ -82,14 +82,14 @@ export function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-lg">
-        <StatCard icon="devices" iconClass="bg-secondary-container text-primary" label="Total Assets" value={total}>
+        <StatCard icon="devices" iconClass="bg-secondary-container text-primary" label="Total Assets" to="/assets" value={total}>
           <div className="mt-space-md pt-space-sm bg-surface-container-low/50 -mx-space-md -mb-space-md px-space-md py-space-sm rounded-b-xl flex items-center gap-space-xs">
             <Icon name="trending_up" className="text-[16px] text-tertiary" />
             <span className="font-caption text-caption text-tertiary font-medium">+{addedLast30Days} added</span>
             <span className="font-caption text-caption text-on-surface-variant">in the last 30 days</span>
           </div>
         </StatCard>
-        <StatCard icon="how_to_reg" iconClass="bg-tertiary-fixed-dim/20 text-tertiary" label="Assigned" value={assigned}>
+        <StatCard icon="how_to_reg" iconClass="bg-tertiary-fixed-dim/20 text-tertiary" label="Assigned" to="/assets?assigned=true" value={assigned}>
           <div className="mt-space-md pt-space-sm bg-surface-container-low/50 -mx-space-md -mb-space-md px-space-md py-space-sm rounded-b-xl flex items-center justify-between">
             <span className="font-caption text-caption text-on-surface-variant">Utilization Rate</span>
             <span className="font-tag-label text-tag-label text-tertiary bg-surface-container-lowest px-space-xs py-0.5 rounded shadow-xs font-semibold">
@@ -97,7 +97,7 @@ export function DashboardPage() {
             </span>
           </div>
         </StatCard>
-        <StatCard icon="inventory_2" iconClass="bg-surface-container-high text-on-surface-variant" label="Unassigned" value={unassigned}>
+        <StatCard icon="inventory_2" iconClass="bg-surface-container-high text-on-surface-variant" label="Unassigned" to="/assets?assigned=false" value={unassigned}>
           <div className="mt-space-md pt-space-sm bg-surface-container-low/50 -mx-space-md -mb-space-md px-space-md py-space-sm rounded-b-xl flex items-center gap-space-xs">
             <span className="w-2 h-2 rounded-full bg-secondary" />
             <span className="font-caption text-caption text-on-surface-variant">
@@ -105,7 +105,7 @@ export function DashboardPage() {
             </span>
           </div>
         </StatCard>
-        <StatCard danger icon="warning" iconClass="bg-error-container/60 text-error" label="Needs Attention" value={needsAttention}>
+        <StatCard danger icon="warning" iconClass="bg-error-container/60 text-error" label="Needs Attention" to="/assets?needsAttention=true" value={needsAttention}>
           <div className="mt-space-md pt-space-sm bg-error-container/20 -mx-space-md -mb-space-md px-space-md py-space-sm rounded-b-xl flex items-center justify-between">
             <span className="font-caption text-caption text-on-error-container font-medium">{repairs} repairs</span>
             <span className="w-1 h-1 rounded-full bg-outline-variant" />
@@ -259,12 +259,15 @@ interface StatCardProps {
   icon: string
   iconClass: string
   danger?: boolean
+  /** Where the card leads: the asset list, already filtered to what the number counts. */
+  to?: string
   children: ReactNode
 }
 
-function StatCard({ label, value, icon, iconClass, danger, children }: StatCardProps) {
-  return (
-    <div className="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+function StatCard({ label, value, icon, iconClass, danger, to, children }: StatCardProps) {
+  const card = 'bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between group transition-shadow hover:shadow-md'
+  const inner = (
+    <>
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-space-xs">
           <span className="font-caption text-caption uppercase tracking-wider text-on-surface-variant font-medium">{label}</span>
@@ -275,7 +278,19 @@ function StatCard({ label, value, icon, iconClass, danger, children }: StatCardP
         </div>
       </div>
       {children}
-    </div>
+    </>
+  )
+  // With a destination the whole card is one link into the asset list.
+  return to ? (
+    <Link
+      className={`${card} cursor-pointer hover:ring-2 hover:ring-primary/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
+      title={`Show ${label.toLowerCase()} in the asset list`}
+      to={to}
+    >
+      {inner}
+    </Link>
+  ) : (
+    <div className={card}>{inner}</div>
   )
 }
 

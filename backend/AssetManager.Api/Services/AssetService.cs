@@ -120,6 +120,8 @@ public sealed class AssetService(AppDbContext db, ICurrentUser currentUser)
         if (q.Status is { } status) query = query.Where(a => a.Status == status);
         if (q.Category is { } category) query = query.Where(a => a.Category == category);
         if (q.Assigned is { } assigned) query = query.Where(a => (a.AssignedToUserId != null) == assigned);
+        if (q.NeedsAttention is { } attention)
+            query = query.Where(a => (a.Status == AssetStatus.NeedsRepair || a.Status == AssetStatus.UnderMaintenance) == attention);
         if (q.AssignedToUserId is { } holderId) query = query.Where(a => a.AssignedToUserId == holderId);
         return query;
     }

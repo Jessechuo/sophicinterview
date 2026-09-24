@@ -48,6 +48,8 @@ public sealed class AssetQuery : PageQuery
     public AssetStatus? Status { get; set; }
     public AssetCategory? Category { get; set; }
     public bool? Assigned { get; set; }
+    /// <summary>Repairs and maintenance together, matching the dashboard's "needs attention" figure.</summary>
+    public bool? NeedsAttention { get; set; }
     public int? AssignedToUserId { get; set; }
     public string? SortBy { get; set; }
     public string? SortDir { get; set; }

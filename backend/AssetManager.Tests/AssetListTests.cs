@@ -55,6 +55,24 @@ public sealed class AssetListTests(ApiFactory factory) : IClassFixture<ApiFactor
     }
 
     [Fact]
+    public async Task Filters_by_needs_attention_covering_repairs_and_maintenance()
+    {
+        var admin = await factory.ClientAsync(Role.Admin);
+        var m = Marker();
+        await admin.CreateAssetAsync(TestData.NewAsset() with { Name = $"{m} healthy" });
+        await admin.CreateAssetAsync(TestData.NewAsset() with { Name = $"{m} broken", Status = AssetStatus.NeedsRepair });
+        await admin.CreateAssetAsync(TestData.NewAsset() with { Name = $"{m} servicing", Status = AssetStatus.UnderMaintenance });
+        await admin.CreateAssetAsync(TestData.NewAsset() with { Name = $"{m} retired", Status = AssetStatus.Retired });
+
+        var attention = await admin.ListAssetsAsync($"search={m}&needsAttention=true");
+        var rest = await admin.ListAssetsAsync($"search={m}&needsAttention=false");
+
+        Assert.Equal(2, attention.TotalCount);
+        Assert.All(attention.Items, a => Assert.Contains(a.Status, new[] { AssetStatus.NeedsRepair, AssetStatus.UnderMaintenance }));
+        Assert.Equal(2, rest.TotalCount);
+    }
+
+    [Fact]
     public async Task Paging_returns_the_requested_page_and_total()
     {
         var admin = await factory.ClientAsync(Role.Admin);

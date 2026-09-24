@@ -92,6 +92,7 @@ export interface AssetQuery {
   status?: AssetStatus
   category?: AssetCategory
   assigned?: boolean
+  needsAttention?: boolean
   assignedToUserId?: number
   sortBy?: string
   sortDir?: 'asc' | 'desc'
